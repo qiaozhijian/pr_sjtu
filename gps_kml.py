@@ -23,8 +23,9 @@ def millerToXY (lon, lat):
     y = (H/2)-(H/(2*mill))*y
     return x,y
 
-f_in = open(r'/home/qzj/Desktop/gpsData')
-f_out = open(r'/home/qzj/Desktop/gps_kml','w')
+path = '/media/qzj/Document/grow/research/slamDataSet/SJTU/odometry/'
+f_in = open(path+'04/gps')
+f_out = open(path+'04/gps_kml','w')
 a=f_in.readlines()
 for line in a[1:]:
     m=line.split(',')

@@ -182,7 +182,7 @@ int main(int argc, char **argv)            //程序主函数
                 imLeftRect = frame_L;
                 imRightRect = frame_R;
             }
-            if((down_sample=="1" && count%2==0) || down_sample=="0")
+            if((down_sample=="1" && count%20==0) || down_sample=="0")
             {
                 string encoding = "mono8";
                 if(grey=="0")
@@ -214,6 +214,7 @@ int main(int argc, char **argv)            //程序主函数
                         string image_R_path = dir + "space/right/" + to_string(uint64_t(now*1e9)) + ".jpg";
                         imwrite(image_L_path, frame_L);
                         imwrite(image_R_path, frame_L);
+//                        SaveCameraTime(dir + "cameraStamps.txt", now*1e9);
                         spaceCnt++;
                         ROS_INFO("save space img %d", spaceCnt);
                     }
