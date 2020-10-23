@@ -165,17 +165,37 @@ def recall_precision_direct(dis_nn,recall_num=25):
 
     return recall_list, precision_list
 
+def getDis_nn(feat1, feat2):
+    dis_nn = torch.empty(size=(300, 300))
+    mean_cos = torch.nn.CosineSimilarity(dim=-1, eps=1e-8)
+    for idx_query in tqdm(range(300)):
+        for idx_data in range(300):
+            dis_tmp = mean_cos(feat1[idx_query].cuda(), feat2[idx_data].cuda()).mean(dim=0)
+            dis_nn[idx_query, idx_data] = dis_tmp
+    return dis_nn
+
+def getDis_nn_fast(feat1, feat2):
+    dis_nn = torch.empty(size=(300, 300))
+    mean_cos = torch.nn.CosineSimilarity(dim=-1, eps=1e-8)
+
+    divide = 150
+    part = 300//divide
+    #feat1[300,256,4096]
+    for i in tqdm(range(divide)):
+        #[300,300,256,4096]
+        feat1_tmp = feat1[part*i:part*(i+1)].unsqueeze(1).cuda(0).repeat(1,300,1,1)
+        feat2_tmp = feat2.unsqueeze(0).cuda(0).repeat(part,1,1,1)
+        #[300,300,256,4096]
+        dis_nn_tmp = mean_cos(feat1_tmp, feat2_tmp).mean(dim=-1)
+        dis_nn[part*i:part*(i+1),:]=dis_nn_tmp
+        del feat1_tmp,feat2_tmp,dis_nn_tmp
+
+    return dis_nn
+
 def recall_precision_n_DISAM_corse_fine(feat1_c, feat2_c, feat1_f, feat2_f, recall_num = 25):
 
-    dis_nn_c = torch.empty(size=(300,300))
-    dis_nn_f = torch.empty(size=(300,300))
-    mean_cos = torch.nn.CosineSimilarity(dim=-1, eps=1e-8)
-    for idx_query in tqdm(range(300)) :
-        for idx_data in range(300):
-            dis_tmp = mean_cos(feat1_c[idx_query].cuda(), feat2_c[idx_data].cuda()).mean(dim=0)
-            dis_nn_c[idx_query, idx_data] = dis_tmp
-            dis_tmp = mean_cos(feat1_f[idx_query].cuda(), feat2_f[idx_data].cuda()).mean(dim=0)
-            dis_nn_f[idx_query, idx_data] = dis_tmp
+    dis_nn_c = getDis_nn_fast(feat1_c.cpu(), feat2_c.cpu())
+    dis_nn_f = getDis_nn_fast(feat1_f.cpu(), feat2_f.cpu())
 
     recall_list_c, precision_list_c = recall_precision_direct(dis_nn_c,recall_num=25)
     recall_list_f, precision_list_f = recall_precision_direct(dis_nn_f,recall_num=25)
@@ -267,9 +287,9 @@ def getFeaVec_DISAM(model, imgs, seq = 1, mode = 'corse',domain=0):
     if not os.path.exists('obj'):
         os.mkdir('obj')
 
-    if os.path.exists('obj/DISAM_domain{}_{}_{}.pkl'.format(domain, mode, seq)):
-        print('load {} feature {} from obj'.format(mode,seq))
-        return load_obj('DISAM_domain{}_{}_{}'.format(domain, mode,seq))
+    #if os.path.exists('obj/DISAM_domain{}_{}_{}.pkl'.format(domain, mode, seq)):
+        #print('load {} feature {} from obj'.format(mode,seq))
+        #return load_obj('DISAM_domain{}_{}_{}'.format(domain, mode,seq))
 
     total_n = 0
     for i in range(12):
@@ -291,7 +311,7 @@ def getFeaVec_DISAM(model, imgs, seq = 1, mode = 'corse',domain=0):
     for i in range(size_tmp):
         feaVecs_t[i]= feaVecs[i].view(256,-1)
     feaVecs_t = feaVecs_t.detach().cpu()
-    save_obj(feaVecs_t, 'DISAM_domain{}_{}_{}'.format(domain, mode,seq))
-    print('save {} feature {} from obj'.format(mode, seq))
+    #save_obj(feaVecs_t, 'DISAM_domain{}_{}_{}'.format(domain, mode,seq))
+    #print('save {} feature {} from obj'.format(mode, seq))
 
     return feaVecs_t
