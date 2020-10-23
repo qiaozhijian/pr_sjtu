@@ -30,7 +30,8 @@ def input_transform_DISAM():
                              (0.5, 0.5, 0.5))
     ])
 
-def sjtu_seq_NetVLAD(seq = 1):
+
+def sjtu_seq_NetVLAD(root, seq = 1):
     if seq < 1 or seq > 4:
         OSError('seq < 1 or seq > 4')
 
@@ -38,7 +39,7 @@ def sjtu_seq_NetVLAD(seq = 1):
         print('load imgs {} from obj'.format(seq))
         return load_obj('imgs_netvlad_{}'.format(seq))
 
-    path = '/media/qzj/Document/grow/research/slamDataSet/SJTU/PR/round{}'.format(seq)
+    path = os.path.join(root, 'round{}'.format(seq))
     imgs={}
     for i in tqdm(range(12)):
         sub_dir = str(i).zfill(2)
@@ -56,15 +57,18 @@ def sjtu_seq_NetVLAD(seq = 1):
 
     return imgs
 
-def sjtu_seq_DISAM(seq = 1):
+def sjtu_seq_DISAM(root,seq = 1):
     if seq < 1 or seq > 4:
         OSError('seq < 1 or seq > 4')
+
+    if not os.path.exists('obj'):
+        os.mkdir('obj')
 
     if os.path.exists('obj/imgs_disam_{}.pkl'.format(seq)):
         print('load imgs {} from obj'.format(seq))
         return load_obj('imgs_disam_{}'.format(seq))
 
-    path = '/media/qzj/Document/grow/research/slamDataSet/SJTU/PR/round{}'.format(seq)
+    path = os.path.join(root, 'round{}'.format(seq))
     imgs={}
     for i in tqdm(range(12)):
         sub_dir = str(i).zfill(2)

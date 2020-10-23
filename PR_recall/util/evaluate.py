@@ -262,11 +262,14 @@ def getFeaVec_NetVLAD(model, imgs, pool_size, seq = 1):
     return feaVecs
 
 
-def getFeaVec_DISAM(model, imgs, seq = 1, mode = 'corse'):
+def getFeaVec_DISAM(model, imgs, seq = 1, mode = 'corse',domain=0):
 
-    if os.path.exists('obj/DISAM_{}_{}.pkl'.format(mode, seq)):
+    if not os.path.exists('obj'):
+        os.mkdir('obj')
+
+    if os.path.exists('obj/DISAM_domain{}_{}_{}.pkl'.format(domain, mode, seq)):
         print('load {} feature {} from obj'.format(mode,seq))
-        return load_obj('DISAM_{}_{}'.format(mode,seq))
+        return load_obj('DISAM_domain{}_{}_{}'.format(domain, mode,seq))
 
     total_n = 0
     for i in range(12):
@@ -279,7 +282,7 @@ def getFeaVec_DISAM(model, imgs, seq = 1, mode = 'corse'):
             n = len(sub_imgs)
             for j in range(n):
                 input = imgs[i][j].cuda().unsqueeze(0)
-                image_encoding = model(input,0)
+                image_encoding = model(input,domain)
                 feaVecs.append(image_encoding.detach().cpu())
                 cnt = cnt + 1
 
@@ -288,7 +291,7 @@ def getFeaVec_DISAM(model, imgs, seq = 1, mode = 'corse'):
     for i in range(size_tmp):
         feaVecs_t[i]= feaVecs[i].view(256,-1)
     feaVecs_t = feaVecs_t.detach().cpu()
-    save_obj(feaVecs_t, 'DISAM_{}_{}'.format(mode,seq))
+    save_obj(feaVecs_t, 'DISAM_domain{}_{}_{}'.format(domain, mode,seq))
     print('save {} feature {} from obj'.format(mode, seq))
 
     return feaVecs_t
