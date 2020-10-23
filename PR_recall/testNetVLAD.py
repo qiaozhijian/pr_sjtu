@@ -2,13 +2,13 @@ from util.sjtu import sjtu_seq_NetVLAD
 from util.evaluate import getNetVLAD,getFeaVec_NetVLAD,recall_precision_n, pool_size, plotFig
 
 if __name__ == "__main__":
-
+    root = '/media/qzj/Document/grow/research/slamDataSet/SJTU/PR'
     model = getNetVLAD()
     print('load image')
-    img_r1 = sjtu_seq_NetVLAD(seq=1)
-    img_r2 = sjtu_seq_NetVLAD(seq=2)
-    img_r3 = sjtu_seq_NetVLAD(seq=3)
-    img_r4 = sjtu_seq_NetVLAD(seq=4)
+    img_r1 = sjtu_seq_NetVLAD(root, seq=1)
+    img_r2 = sjtu_seq_NetVLAD(root, seq=2)
+    img_r3 = sjtu_seq_NetVLAD(root, seq=3)
+    img_r4 = sjtu_seq_NetVLAD(root, seq=4)
 
     print('\nmodel inference')
     feaVecs_r1 = getFeaVec_NetVLAD(model, img_r1, pool_size = pool_size, seq=1)
@@ -20,8 +20,6 @@ if __name__ == "__main__":
 
     for i in range(4):
         for j in range(4):
-            if i==j:
-                continue
             recall_list, precision_list = recall_precision_n(feaVecs[i], feaVecs[j], recall_num = 25)
             # print('')
             # print(recall_list)

@@ -178,7 +178,7 @@ def getDis_nn_fast(feat1, feat2):
     dis_nn = torch.empty(size=(300, 300))
     mean_cos = torch.nn.CosineSimilarity(dim=-1, eps=1e-8)
 
-    divide = 150
+    divide = 300
     part = 300//divide
     #feat1[300,256,4096]
     for i in tqdm(range(divide)):
